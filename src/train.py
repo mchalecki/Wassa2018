@@ -1,9 +1,10 @@
 import argparse
 import logging
+import time
 from typing import Optional
 
 from paths import DATA
-from src.net import NetworkTrainer
+from src.trainer import NetworkTrainer
 from src.utils.types import path
 
 logging.basicConfig(level=logging.INFO)
@@ -13,8 +14,9 @@ log = logging.getLogger(__name__)
 def train(train_path: path, test_path: path, model_name: Optional[str] = None) -> None:
     model = NetworkTrainer()
     log.info("Starting training")
+    start = time.time()
     model.train(train_path, test_path, model_name)
-    log.info("Training ended")
+    log.info(f"Training ended, took {start - time.time()}")
     model.export()
     log.info("Exported model")
 

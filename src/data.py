@@ -1,20 +1,29 @@
 import random
-import string
 from typing import Tuple
 
 import tensorflow as tf
 
+dummy_sentences = [
+    ("This is test sentence.", 0),
+    ("Test sentences are to test model", 0),
+    ("Thos sentence is for testing purposes", 0),
+    ("Sky is blue.", 1),
+    ("The are clouds up.", 1),
+    ("I hope it wont rain.", 1),
+    ("That's what she said!", 2),
+    ("It is what she was telling me.", 2),
+    ("Susan acknowledged that", 2)
+]
 
-def dummy_generator(maxlen=20, categories=5) -> Tuple[str, int]:
+
+def dummy_generator() -> Tuple[str, int]:
     """
     Return string sentence and label as int.
     :param maxlen:
     :param categories:
     :return:
     """
-    yield (''.join(random.choice(string.ascii_letters + string.digits) for _ in range(random.randint(0, maxlen))),
-           random.randint(0, categories)
-           )
+    yield random.choice(dummy_sentences)
 
 
 def one_hot_labels_fn(num_classes: int):
