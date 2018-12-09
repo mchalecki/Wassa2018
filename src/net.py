@@ -1,3 +1,5 @@
+import sys
+
 import tensorflow as tf
 import tensorflow_hub as hub
 
@@ -8,14 +10,13 @@ class Model:
 
         self.raw_content_input = tf.identity(features, name='raw_input')
         self.is_train = mode == tf.estimator.ModeKeys.TRAIN
-        network = Network(self.params.num_classes, training=self.is_train)  # TODO when predicts
+        network = Network(self.params.num_classes, training=self.is_train)
         self.prediction = tf.identity(network(self.raw_content_input, training=self.is_train), name='prediction')
         if mode != tf.estimator.ModeKeys.PREDICT:
             with tf.name_scope("loss"):
-                self.loss = tf.losses.softmax_cross_entropy(labels, self.prediction)
+                self.loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(labels, self.prediction))
                 # tf.summary.scalar('training loss', self.loss)
 
-                # overall loss
             with tf.name_scope("training"):
                 step = tf.train.get_global_step()
                 self.train_op = tf.train.AdamOptimizer(self.params.learning_rate).minimize(self.loss, step)

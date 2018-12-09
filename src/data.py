@@ -1,29 +1,32 @@
-import random
-from typing import Tuple
+import pandas as pd
+from typing import Tuple, Callable
 
 import tensorflow as tf
 
-dummy_sentences = [
-    ("This is test sentence.", 0),
-    ("Test sentences are to test model", 0),
-    ("Thos sentence is for testing purposes", 0),
-    ("Sky is blue.", 1),
-    ("The are clouds up.", 1),
-    ("I hope it wont rain.", 1),
-    ("That's what she said!", 2),
-    ("It is what she was telling me.", 2),
-    ("Susan acknowledged that", 2)
-]
+from src.utils.types import path
+
+labels_map = {
+    'anger': 0,
+    'fear': 1,
+    'disgust': 2,
+    'surprise': 3,
+    'sad': 4,
+    'joy': 5,
+}
 
 
-def dummy_generator() -> Tuple[str, int]:
-    """
-    Return string sentence and label as int.
-    :param maxlen:
-    :param categories:
-    :return:
-    """
-    yield random.choice(dummy_sentences)
+def get_data_fn(src: path) -> Callable[[], Tuple[str, int]]:
+    df = pd.read_csv(src, header=None, names=['label', 'sentence'], sep='\t')
+
+    def get_data() -> Tuple[str, int]:
+        for _, row in df.iterrows():
+            label, sentence = row.tolist()
+            sentence = sentence.replace("[#TRIGGERWORD#]", 'OOV')
+            sentence = sentence.replace("http://url.removed", 'url')
+            label_idx = labels_map[label]
+            yield sentence, label_idx
+
+    return get_data
 
 
 def one_hot_labels_fn(num_classes: int):

@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 
 from paths import OUTPUTS
-from src.data import dummy_generator, one_hot_labels_fn
+from src.data import one_hot_labels_fn, get_data_fn, labels_map
 from src.net import Model
 from src.utils.types import path
 
@@ -41,14 +41,13 @@ class NetworkTrainer:
     def export(self):
         pass
 
-    def create_input_fn(self, data_path: path):
+    def create_input_fn(self, src: path):
         def input_fn():
-            dataset = (tf.data.Dataset.from_generator(dummy_generator,
+            dataset = (tf.data.Dataset.from_generator(get_data_fn(src),
                                                       output_types=(tf.string, tf.uint8))
-                       .map(one_hot_labels_fn(self.params.num_classes), 4)
                        .shuffle(buffer_size=100)
                        .batch(self.params.batch_size)
-                       .prefetch(self.params.batch_size)
+                       .map(one_hot_labels_fn(self.params.num_classes), 16)
                        .repeat())
             return dataset
 
@@ -57,10 +56,10 @@ class NetworkTrainer:
 
 class Params:
     def __init__(self):
-        self.num_classes = 5
+        self.num_classes = len(labels_map)
         self.learning_rate = 1e-3
-        self.batch_size = 32
-        self.max_steps = 10000
+        self.batch_size = 16
+        self.max_steps = 10_000
 
 
 class Config:
