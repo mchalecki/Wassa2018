@@ -28,10 +28,11 @@ class Network(tf.keras.Model):
         self.num_classes = num_classes
         self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
 
+        self.net = tf.keras.Sequential([
+            tf.keras.layers.Dense(self.num_classes)
+        ])
+
     def __call__(self, inputs, training=False, **kwargs):
-        embeddings = self.elmo(inputs, signature="default", as_dict=True)["elmo"]
-        net = tf.keras.Sequential([
-            tf.keras.layers.Dense(self.num_classes)]
-        )
-        out = net(embeddings)
+        embeddings = self.elmo(inputs, signature="default", as_dict=True)["default"]
+        out = self.net(embeddings)
         return out
