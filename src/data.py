@@ -23,6 +23,7 @@ def get_data_fn(src: path) -> Callable[[], Tuple[str, int]]:
             label, sentence = row.tolist()
             sentence = sentence.replace("[#TRIGGERWORD#]", 'OOV')
             sentence = sentence.replace("http://url.removed", 'url')
+            sentence = sentence[:200]
             label_idx = labels_map[label]
             yield sentence, label_idx
 

@@ -10,7 +10,7 @@ class DATA:
         path = root / 'data' / 'train' / 'train-v3.csv'
 
     class TEST:
-        path = root / 'data' / 'test' / 'test.csv'
+        path = root / 'data' / 'test' / 'test-text-labels.csv'
 
 
 class OUTPUTS:

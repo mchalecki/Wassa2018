@@ -58,12 +58,12 @@ class Params:
     def __init__(self):
         self.num_classes = len(labels_map)
         self.learning_rate = 1e-3
-        self.batch_size = 8
-        self.max_steps = 10_000
+        self.batch_size = 4
+        self.max_steps = 150_000
 
 
 class Config:
     def __init__(self):
         self.checkpoint_path = OUTPUTS.path
-        self.save_checkpoints_steps = 1000
+        self.save_checkpoints_steps = 1_000
         self.save_summary_steps = 100
