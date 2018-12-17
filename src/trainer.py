@@ -45,7 +45,7 @@ class NetworkTrainer:
         def input_fn():
             dataset = (tf.data.Dataset.from_generator(dummy_generator,
                                                       output_types=(tf.string, tf.uint8))
-                       .map(one_hot_labels_fn(self.params.num_classes), 4)
+                       .map(one_hot_labels_fn(self.params.num_classes), 6)
                        .shuffle(buffer_size=100)
                        .batch(self.params.batch_size)
                        .prefetch(self.params.batch_size)
@@ -57,10 +57,10 @@ class NetworkTrainer:
 
 class Params:
     def __init__(self):
-        self.num_classes = 5
+        self.num_classes = 6
         self.learning_rate = 1e-3
         self.batch_size = 32
-        self.max_steps = 10000
+        self.max_steps = 3
 
 
 class Config:

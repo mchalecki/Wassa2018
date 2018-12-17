@@ -2,6 +2,7 @@ import random
 from typing import Tuple
 
 import tensorflow as tf
+import pandas as pd
 
 dummy_sentences = [
     ("This is test sentence.", 0),
@@ -23,7 +24,9 @@ def dummy_generator() -> Tuple[str, int]:
     :param categories:
     :return:
     """
-    yield random.choice(dummy_sentences)
+    train = pd.read_csv("data/train/train-v3.csv", sep=',', header=None)
+    for index, row in train.iterrows():
+        yield tuple(row)
 
 
 def one_hot_labels_fn(num_classes: int):
