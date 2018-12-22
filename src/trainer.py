@@ -59,7 +59,7 @@ class Params:
         self.num_classes = len(labels_map)
         self.learning_rate = 1e-3
         self.batch_size = 4
-        self.max_steps = 150_000
+        self.max_steps = 100_000
 
 
 class Config:

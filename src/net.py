@@ -15,7 +15,12 @@ class Model:
         if mode != tf.estimator.ModeKeys.PREDICT:
             with tf.name_scope("loss"):
                 self.loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(labels, self.prediction))
-                # tf.summary.scalar('training loss', self.loss)
+
+            with tf.name_scope("metrics"):
+                acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
+                                                  predictions=tf.argmax(self.prediction, 1))
+
+                tf.summary.scalar('accuracy', acc[1])
 
             with tf.name_scope("training"):
                 step = tf.train.get_global_step()
