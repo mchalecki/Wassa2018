@@ -1,5 +1,3 @@
-import sys
-
 import tensorflow as tf
 import tensorflow_hub as hub
 
@@ -18,8 +16,7 @@ class Model:
 
             with tf.name_scope("metrics"):
                 acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
-                                                  predictions=tf.argmax(self.prediction, 1))
-
+                                          predictions=tf.argmax(self.prediction, 1))
                 tf.summary.scalar('accuracy', acc[1])
 
             with tf.name_scope("training"):
@@ -34,10 +31,13 @@ class Network(tf.keras.Model):
         self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
 
         self.net = tf.keras.Sequential([
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(256, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(128)),
+            tf.keras.layers.Dense(100),
             tf.keras.layers.Dense(self.num_classes)
         ])
 
     def __call__(self, inputs, training=False, **kwargs):
-        embeddings = self.elmo(inputs, signature="default", as_dict=True)["default"]
+        embeddings = self.elmo(inputs, signature="default", as_dict=True)["elmo"]
         out = self.net(embeddings)
         return out

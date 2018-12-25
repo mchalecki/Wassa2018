@@ -45,10 +45,12 @@ class NetworkTrainer:
         def input_fn():
             dataset = (tf.data.Dataset.from_generator(get_data_fn(src),
                                                       output_types=(tf.string, tf.uint8))
-                       .shuffle(buffer_size=100)
-                       .map(one_hot_labels_fn(self.params.num_classes))
+                       .shuffle(buffer_size=300)
+                       .map(one_hot_labels_fn(self.params.num_classes), num_parallel_calls=8)
                        .batch(self.params.batch_size)
-                       .repeat())
+                       .repeat()
+                       .prefetch(1)
+                       )
             return dataset
 
         return input_fn
@@ -58,12 +60,12 @@ class Params:
     def __init__(self):
         self.num_classes = len(labels_map)
         self.learning_rate = 1e-3
-        self.batch_size = 4
-        self.max_steps = 100_000
+        self.batch_size = 64
+        self.max_steps = 10_000
 
 
 class Config:
     def __init__(self):
         self.checkpoint_path = OUTPUTS.path
-        self.save_checkpoints_steps = 1_000
+        self.save_checkpoints_steps = 500
         self.save_summary_steps = 100
