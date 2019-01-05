@@ -16,7 +16,7 @@ class Model:
 
             with tf.name_scope("metrics"):
                 self.acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
-                                          predictions=tf.argmax(self.prediction, 1))
+                                               predictions=tf.argmax(self.prediction, 1))
                 tf.summary.scalar('accuracy', self.acc[1])
 
             with tf.name_scope("training"):
@@ -28,17 +28,19 @@ class Network(tf.keras.Model):
     def __init__(self, num_classes: int, training: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.num_classes = num_classes
-        self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
 
+        self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
+        self.drop = tf.keras.layers.Dropout(.2)
         self.net = tf.keras.Sequential([
             tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(1024, return_sequences=True)),
             tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512, return_sequences=True)),
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(256)),
-            tf.keras.layers.Dense(64),
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512)),
+            tf.keras.layers.Dense(128),
             tf.keras.layers.Dense(self.num_classes)
         ])
 
     def __call__(self, inputs, training=False, **kwargs):
         embeddings = self.elmo(inputs, signature="default", as_dict=True)["elmo"]
-        out = self.net(embeddings)
+        out = self.drop(embeddings, training=training)
+        out = self.net(out)
         return out

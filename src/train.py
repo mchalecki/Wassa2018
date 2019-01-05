@@ -18,7 +18,6 @@ def train(train_path: path, test_path: path, model_name: Optional[str] = None) -
     model.train(train_path, test_path, model_name)
     log.info(f"Training ended, took {start - time.time()}")
     model.export()
-    log.info("Exported model")
 
 
 def create_parser() -> argparse.ArgumentParser:

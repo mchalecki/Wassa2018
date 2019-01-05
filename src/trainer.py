@@ -1,6 +1,8 @@
 import logging
 from typing import Optional
 
+from tensorflow.python.estimator.export.export import build_raw_serving_input_receiver_fn
+
 from paths import OUTPUTS
 from src.data import one_hot_labels_fn, get_data_fn, labels_map
 from src.net import Model
@@ -41,7 +43,27 @@ class NetworkTrainer:
         tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
     def export(self):
-        pass
+        assert self.config.checkpoint_path is not None
+        model_dir = str(self.config.checkpoint_path)
+
+        def model_fn(features, labels, mode):
+            sentence = features['sentence']
+            model = Model(sentence, labels, self.params, mode)
+            return tf.estimator.EstimatorSpec(
+                mode,
+                {'label': model.prediction}
+            )
+
+        estimator = tf.estimator.Estimator(model_fn, model_dir)
+        sentence = tf.placeholder(tf.string, [None], 'sentence')
+        serving_input_receiver_fn = build_raw_serving_input_receiver_fn(
+            {'sentence': sentence}
+        )
+        estimator.export_saved_model(
+            str(self.config.checkpoint_path / 'exported'),
+            serving_input_receiver_fn
+        )
+        log.info("Export complete")
 
     def create_input_fn(self, src: path):
         def input_fn():
