@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 from typing import Tuple, Callable
 
@@ -15,14 +17,25 @@ labels_map = {
 }
 
 
+def remove_punctuation(sentence):
+    return re.sub(r'[^\w\s]', '', sentence, re.UNICODE)
+
+
+def remove_duplicates(sentence):
+    return re.sub(r'\b(\w+)( \1\b)+', r'\1', sentence)
+
+
 def get_data_fn(src: path) -> Callable[[], Tuple[str, int]]:
     df = pd.read_csv(src, header=None, names=['label', 'sentence'], sep='\t')
 
     def get_data() -> Tuple[str, int]:
         for _, row in df.iterrows():
             label, sentence = row.tolist()
-            sentence = sentence.replace("[#TRIGGERWORD#]", 'OOV')
             sentence = sentence.replace("http://url.removed", 'url')
+            sentence = remove_punctuation(sentence)
+            sentence = remove_duplicates(sentence)
+            sentence = sentence.replace("TRIGGERWORD", '<UNK>')
+            sentence = sentence.replace("USERNAME", 'user')
             sentence = sentence[:200]
             label_idx = labels_map[label]
             yield sentence, label_idx

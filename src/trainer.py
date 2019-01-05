@@ -26,11 +26,13 @@ class NetworkTrainer:
 
         def model_fn(features, labels, mode):
             model = Model(features, labels, self.params, mode)
+
             return tf.estimator.EstimatorSpec(
                 mode,
                 {'label': model.prediction},
                 model.loss,
-                model.train_op
+                model.train_op,
+                {"acc": model.acc}
             )
 
         train_spec = tf.estimator.TrainSpec(self.create_input_fn(train_path), max_steps=self.params.max_steps)
@@ -59,9 +61,9 @@ class NetworkTrainer:
 class Params:
     def __init__(self):
         self.num_classes = len(labels_map)
-        self.learning_rate = 1e-3
+        self.learning_rate = 1e-4
         self.batch_size = 64
-        self.max_steps = 10_000
+        self.max_steps = 15_000
 
 
 class Config:

@@ -15,9 +15,9 @@ class Model:
                 self.loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(labels, self.prediction))
 
             with tf.name_scope("metrics"):
-                acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
+                self.acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
                                           predictions=tf.argmax(self.prediction, 1))
-                tf.summary.scalar('accuracy', acc[1])
+                tf.summary.scalar('accuracy', self.acc[1])
 
             with tf.name_scope("training"):
                 step = tf.train.get_global_step()
@@ -31,9 +31,10 @@ class Network(tf.keras.Model):
         self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
 
         self.net = tf.keras.Sequential([
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(256, return_sequences=True)),
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(128)),
-            tf.keras.layers.Dense(100),
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(1024, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(256)),
+            tf.keras.layers.Dense(64),
             tf.keras.layers.Dense(self.num_classes)
         ])
 
