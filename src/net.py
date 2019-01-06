@@ -31,10 +31,12 @@ class Network(tf.keras.Model):
 
         self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
         self.drop = tf.keras.layers.Dropout(.2)
-        self.net = tf.keras.Sequential([
+        self.net1 = tf.keras.Sequential([
             tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(1024, return_sequences=True)),
             tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512, return_sequences=True)),
             tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512)),
+        ])
+        self.net2 = tf.keras.Sequential([
             tf.keras.layers.Dense(128),
             tf.keras.layers.Dense(self.num_classes)
         ])
@@ -42,5 +44,7 @@ class Network(tf.keras.Model):
     def __call__(self, inputs, training=False, **kwargs):
         embeddings = self.elmo(inputs, signature="default", as_dict=True)["elmo"]
         out = self.drop(embeddings, training=training)
-        out = self.net(out)
+        out = self.net1(out)
+        out = self.drop(out, training=training)
+        out = self.net2(out)
         return out

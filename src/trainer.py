@@ -84,8 +84,8 @@ class Params:
     def __init__(self):
         self.num_classes = len(labels_map)
         self.learning_rate = 1e-4
-        self.batch_size = 64
-        self.max_steps = 15_000
+        self.batch_size = 32
+        self.max_steps = 35_000
 
 
 class Config:
