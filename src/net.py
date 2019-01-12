@@ -1,6 +1,8 @@
 import tensorflow as tf
 import tensorflow_hub as hub
 
+from src.utils import tf_metrics
+
 
 class Model:
     def __init__(self, features, labels, params, mode):
@@ -15,9 +17,21 @@ class Model:
                 self.loss = tf.reduce_mean(tf.losses.softmax_cross_entropy(labels, self.prediction))
 
             with tf.name_scope("metrics"):
-                self.acc = tf.metrics.accuracy(labels=tf.argmax(labels, 1),
-                                               predictions=tf.argmax(self.prediction, 1))
+                y_true = tf.argmax(labels, 1)
+                y_pred = tf.argmax(self.prediction, 1)
+
+                self.acc = tf.metrics.accuracy(labels=y_true,
+                                               predictions=y_pred)
                 tf.summary.scalar('accuracy', self.acc[1])
+
+                f1 = tf_metrics.f1(y_true, y_pred, self.params.num_classes)
+                tf.summary.scalar('f1', f1[1])
+
+                precision = tf_metrics.precision(y_true, y_pred, self.params.num_classes)
+                tf.summary.scalar('precision', precision[1])
+
+                recall = tf_metrics.recall(y_true, y_pred, self.params.num_classes)
+                tf.summary.scalar('recall', recall[1])
 
             with tf.name_scope("training"):
                 step = tf.train.get_global_step()
