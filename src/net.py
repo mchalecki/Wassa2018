@@ -35,9 +35,9 @@ class Network(tf.keras.Model):
         self.elmo = hub.Module("https://tfhub.dev/google/elmo/2", trainable=training)
         self.drop = tf.keras.layers.Dropout(.4)
         self.net1 = tf.keras.Sequential([
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(1024, return_sequences=True)),
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512, return_sequences=True)),
-            tf.keras.layers.Bidirectional(tf.keras.layers.CuDNNLSTM(512)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(1024, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(512, return_sequences=True)),
+            tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(512)),
         ])
         self.net2 = tf.keras.Sequential([
             tf.keras.layers.Dense(128),
